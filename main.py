@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api.proxies import WebshareProxyConfig
 import os
 import uvicorn
 
@@ -11,14 +12,11 @@ PROXY_PASSWORD = os.environ.get("PROXY_PASSWORD", "")
 @app.get("/transcript")
 def get_transcript(videoId: str, lang: str = "en"):
     try:
-        # Build proxy URL directly from credentials
-        proxy_url = f"http://{PROXY_USERNAME}:{PROXY_PASSWORD}@p.webshare.io:80/"
-
         ytt = YouTubeTranscriptApi(
-            proxies={
-                "http": proxy_url,
-                "https": proxy_url
-            }
+            proxy_config=WebshareProxyConfig(
+                proxy_username=PROXY_USERNAME,
+                proxy_password=PROXY_PASSWORD
+            )
         )
 
         transcript_list = ytt.list(videoId)
