@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Header
+from fastapi import FastAPI, HTTPException
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api._errors import TranscriptsDisabled, NoTranscriptFound
 import os
@@ -6,30 +6,12 @@ import uvicorn
 
 app = FastAPI(title="YouTube Transcript Server")
 
-# Optional API key protection — set API_KEY in Railway environment variables
-API_KEY = os.environ.get("API_KEY", "")
-
-
-def verify_api_key(x_api_key: str):
-    if API_KEY and x_api_key != API_KEY:
-        raise HTTPException(status_code=401, detail="Unauthorized — invalid API key")
-
-
 @app.get("/transcript")
-def get_transcript(
-    videoId: str,
-    lang: str = "en",
-    x_api_key: str = Header(default="")
-):
-    verify_api_key(x_api_key)
-
+def get_transcript(videoId: str, lang: str = "en"):
     try:
-        # Try requested language first
         try:
             transcript = YouTubeTranscriptApi.get_transcript(videoId, languages=[lang])
-
         except NoTranscriptFound:
-            # Fall back to auto-generated in any supported language
             transcript_list = YouTubeTranscriptApi.list_transcripts(videoId)
             transcript = transcript_list.find_generated_transcript(
                 ["en", "zh-TW", "zh-CN", "ja", "ko"]
@@ -55,11 +37,9 @@ def get_transcript(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.get("/health")
 def health():
     return {"status": "ok"}
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
