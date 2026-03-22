@@ -54,9 +54,9 @@ def health():
 
 @app.get("/version")
 def version():
-    import pkg_resources
-    v = pkg_resources.get_distribution("youtube-transcript-api").version
-    return {"version": v}
+    import subprocess
+    result = subprocess.run(["pip", "show", "youtube-transcript-api"], capture_output=True, text=True)
+    return {"output": result.stdout}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
