@@ -52,11 +52,12 @@ def get_transcript(videoId: str, lang: str = "en"):
 def health():
     return {"status": "ok"}
 
+@app.get("/version")
+def version():
+    import pkg_resources
+    v = pkg_resources.get_distribution("youtube-transcript-api").version
+    return {"version": v}
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
-
-@app.get("/version")
-def version():
-    import youtube_transcript_api
-    return {"version": youtube_transcript_api.__version__}
