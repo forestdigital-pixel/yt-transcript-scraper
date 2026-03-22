@@ -6,23 +6,20 @@ import uvicorn
 
 app = FastAPI(title="YouTube Transcript Server")
 
-# Webshare proxy credentials — set these in Railway Variables
 PROXY_USERNAME = os.environ.get("PROXY_USERNAME", "")
 PROXY_PASSWORD = os.environ.get("PROXY_PASSWORD", "")
 
 @app.get("/transcript")
 def get_transcript(videoId: str, lang: str = "en"):
     try:
-        # Use proxy to bypass YouTube IP block
-        if PROXY_USERNAME and PROXY_PASSWORD:
-            ytt = YouTubeTranscriptApi(
-                proxy_config=WebshareProxyConfig(
-                    proxy_username=PROXY_USERNAME,
-                    proxy_password=PROXY_PASSWORD,
-                )
+        ytt = YouTubeTranscriptApi(
+            proxy_config=WebshareProxyConfig(
+                proxy_username=PROXY_USERNAME,
+                proxy_password=PROXY_PASSWORD,
+                domain="rotating.webshare.io",  # rotating residential endpoint
+                port=80
             )
-        else:
-            ytt = YouTubeTranscriptApi()
+        )
 
         transcript_list = ytt.list(videoId)
 
