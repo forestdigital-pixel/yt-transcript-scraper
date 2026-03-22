@@ -16,7 +16,7 @@ def get_transcript(videoId: str, lang: str = "en"):
             proxy_config=WebshareProxyConfig(
                 proxy_username=PROXY_USERNAME,
                 proxy_password=PROXY_PASSWORD,
-                domain="rotating.webshare.io",  # rotating residential endpoint
+                domain="ipv4.webshare.io",  # rotating residential endpoint
                 port=80
             )
         )
